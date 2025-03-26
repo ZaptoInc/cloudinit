@@ -1,2 +1,6 @@
 #!/bin/bash
+
+# Importing variables config
+source "/etc/cloudinit/variables.sh"
+
 echo "TODO"

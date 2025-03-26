@@ -11,6 +11,6 @@ DownloadImage() {
     wget -O "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.raw"
 }
 
-if [[ -e "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" || "$CI_UPDATE" -eq 1 ]]; then
+if [[ ! -e "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" || "$CI_UPDATE_OS" -eq 1 ]]; then
     DownloadImage
 fi
