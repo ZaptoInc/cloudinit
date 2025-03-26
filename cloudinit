@@ -20,7 +20,7 @@ usage() {
     echo "  --gateway       IP address of the gateway (Default: $CI_GATEWAY)"
     echo "  --dns           IP address of the DNS servers (Defaut: $CI_DNS)"
     echo "  --os            Operating system used on for the VM (Defaut: $CI_OS)"
-    echo "  --listos        List the availble operating systems"
+    echo "  --listos        List the available operating systems"
     echo "  --rp            Root password (Default: $CI_ROOT_PASSWORD)"
     echo "  --user          Username (Defaut: $CI_USER_NAME)"
     echo "  --up            User password (Defaut: $CI_USER_PASSWORD)"
