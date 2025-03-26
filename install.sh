@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Downloading variables config file
-mkdir "/etc/cloudinit"
+mkdir -p "/etc/cloudinit"
 wget -O "/etc/cloudinit/variables.sh" "https://raw.githubusercontent.com/ZaptoInc/cloudinit/refs/heads/master/variables.sh"
 chmod +x "/etc/cloudinit/variables.sh"
 
@@ -9,7 +9,7 @@ chmod +x "/etc/cloudinit/variables.sh"
 source "/etc/cloudinit/variables.sh"
 
 # Importing OS scripts
-mkdir "$CI_SCRIPTS"
+mkdir -p "$CI_SCRIPTS"
 wget -O "$CI_SCRIPTS/debian12.sh" "https://raw.githubusercontent.com/ZaptoInc/cloudinit/refs/heads/master/scripts/debian12.sh"
 chmod +x "$CI_SCRIPTS/debian12.sh"
 
