@@ -19,6 +19,8 @@ usage() {
     echo "  --ip            IP Address used for networking (Required unless interactive)"
     echo "  --gateway       IP address of the gateway (Default: $CI_GATEWAY)"
     echo "  --dns           IP address of the DNS servers (Defaut: $CI_DNS)"
+    echo "  --os            Operating system used on for the VM (Defaut: $CI_OS)"
+    echo "  --listos        List the availble operating systems"
     echo "  --rp            Root password (Default: $CI_ROOT_PASSWORD)"
     echo "  --user          Username (Defaut: $CI_USER_NAME)"
     echo "  --up            User password (Defaut: $CI_USER_PASSWORD)"
@@ -55,6 +57,15 @@ listBackupIds() {
     echo "$(pvesh get /cluster/backup --output-format json | jq -r '.[] | "\(.id): \(.comment // "No comment.")"')"
 }
 
+CI_SCRIPTS_VAR=("$CI_SCRIPTS"/*.sh)
+
+listOS() {
+    for i in "${!CI_SCRIPTS_VAR[@]}"; do
+        CI_FILE_NAME=$(basename "${CI_SCRIPTS_VAR[$i]}" .sh)
+        echo "$((i + 1))) $CI_FILE_NAME"
+    done
+}
+
 # Parsing des arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -67,6 +78,8 @@ while [[ $# -gt 0 ]]; do
         --ip) CI_IP_ADDRESS="$2/$CIDR"; shift 2 ;;
         --gateway) CI_GATEWAY="$2"; shift 2 ;;
         --dns) CI_DNS="$2"; shift 2 ;;
+        --os) CI_OS="$2"; shift 2 ;;
+        --listos) listOS; exit 1; shift;;
         --rp) CI_ROOT_PASSWORD="$2"; shift 2 ;;
         --user) CI_USER_NAME="$2"; shift 2 ;;
         --up) CI_USER_PASSWORD="$2"; shift 2 ;;
