@@ -3,4 +3,110 @@
 # Importing variables config
 source "/etc/cloudinit/variables.sh"
 
+# Global variables
+export CI_INTERACTIVE=0
+export CI_ON_BOOT=0
+export CI_START=0
+usage() {
+    echo ""
+    echo "Usage: $0 --name <VM_name> --ip <ip_address> [--option]"
+    echo "  --id            ID of the VM (Default: automatically choose the first available ID)"
+    echo "  --cpu           CPU count (Default: $CI_CPU)"
+    echo "  --name          VM name (Required unless interactive)"
+    echo "  --ram           RAM size un MB (Default: $CI_RAM)"
+    echo "  --disk          disk size (Default: $CI_DISK)"
+    echo "  --cidr          CIDR of the network (Default: $CI_CIDR)"
+    echo "  --ip            IP Address used for networking (Required unless interactive)"
+    echo "  --gateway       IP address of the gateway (Default: $CI_GATEWAY)"
+    echo "  --dns           IP address of the DNS servers (Defaut: $CI_DNS)"
+    echo "  --rp            Root password (Default: $CI_ROOT_PASSWORD)"
+    echo "  --user          Username (Defaut: $CI_USER_NAME)"
+    echo "  --up            User password (Defaut: $CI_USER_PASSWORD)"
+    echo "  --onboot        Start with Proxmox (Defaut: Disabled)"
+    echo "  --start         Start the VM (Defaut: Disabled)"
+    echo "  --backup        Put the VM in a backup procedure (Defaut: Disabled)"
+    echo "  --backupid      ID of the backup procedure (Required if backup enabled)"
+    echo "  --listbackupids Lists all the backup procedures"
+    echo "  --interactive   Interactive mode"
+    exit 1
+}
+
+installJq() {
+    # Verifies if jq is not installed
+if ! command -v jq &> /dev/null; then
+    echo "jq is not installed. Installing jq..."
+    apt-get update -y > /dev/null
+    apt-get install jq -y > /dev/null
+   
+
+    # Vérifie si l'installation a réussi
+    if command -v jq &> /dev/null; then
+        echo "jq was installed successfully!"
+    else
+        echo "jq installation failed, please cheq manually"
+        exit 1
+    fi
+fi
+}
+
+listBackupIds() {
+    installJq
+    echo "Backup procedure available:"
+    echo "$(pvesh get /cluster/backup --output-format json | jq -r '.[] | "\(.id): \(.comment // "No comment.")"')"
+}
+
+# Parsing des arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --id) CI_VM_ID="$2"; shift 2 ;;
+        --name) CI_VM_NAME="$2"; shift 2 ;;
+        --cpu) CI_CPU="$2"; shift 2 ;;
+        --ram) CI_RAM="$2"; shift 2 ;;
+        --disk) CI_DISK="$2"; shift 2 ;;
+        --cidr) $CI_CIDR="$2"; shift 2 ;;
+        --ip) CI_IP_ADDRESS="$2/$CIDR"; shift 2 ;;
+        --gateway) CI_GATEWAY="$2"; shift 2 ;;
+        --dns) CI_DNS="$2"; shift 2 ;;
+        --rp) CI_ROOT_PASSWORD="$2"; shift 2 ;;
+        --user) CI_USER_NAME="$2"; shift 2 ;;
+        --up) CI_USER_PASSWORD="$2"; shift 2 ;;
+        --interactive) CI_INTERACTIVE=1; shift ;;
+        --onboot) CI_ON_BOOT=1; shift ;;
+        --start) CI_START=1; shift ;;
+        --backup) CI_BACKUP=1; shift; installJq ;;
+        --backupid) CI_BACKUP_ID="$2"; shift 2 ;;
+        --listbackupids) listBackupIds; exit 1; shift;;
+        --) shift; break ;;
+        *) usage;
+    esac
+done
+
+CI_SCRIPTS_VAR=("$CI_SCRIPTS"/*.sh)
+
+echo "What OS would you like to use?"
+echo
+
+# Show the menu
+for i in "${!CI_SCRIPTS_VAR[@]}"; do
+    CI_FILE_NAME=$(basename "${CI_SCRIPTS_VAR[$i]}" .sh)
+    echo "$((i + 1))) $CI_FILE_NAME"
+done
+
+echo "0) Cancel"
+echo
+read -p "> " CI_CHOICE
+
+# Gérer le choix
+if [[ "$CI_CHOICE" == "0" ]]; then
+    echo "Cancelled."
+    exit 0
+elif [[ "$CI_CHOICE" =~ ^[0-9]+$ ]] && (( CI_CHOICE >= 1 && CI_CHOICE <= ${#CI_SCRIPTS_VAR[@]} )); then
+    CI_SCRIPT="${CI_SCRIPTS_VAR[$((CI_CHOICE - 1))]}"
+    echo "Starting $CI_SCRIPT..."
+    bash "$CI_SCRIPT"
+else
+    echo "Invalid choice."
+    exit 1
+fi
+
 echo "TODO"
