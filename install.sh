@@ -42,6 +42,20 @@ if [[ "$CI_VERBOSE" -eq 1 ]]; then
 fi
 chmod +x "$CI_SCRIPTS/debian12.sh"
 
+# Importing utils scripts
+if [[ "$CI_VERBOSE" -eq 1 ]]; then
+    echo "Creating $CI_UTILS if it doesn't exist"
+fi
+mkdir -p "$CI_UTILS"
+if [[ "$CI_VERBOSE" -eq 1 ]]; then
+    echo "Downloading latest debian12.sh to $CI_UTILS..."
+fi
+wget -O "$CI_UTILS/networking.sh" "https://raw.githubusercontent.com/ZaptoInc/cloudinit/refs/heads/master/utils/networking.sh"
+if [[ "$CI_VERBOSE" -eq 1 ]]; then
+    echo "Making it executable"
+fi
+chmod +x "$CI_UTILS/networking.sh"
+
 # Creating cloudinit executable
 if [[ "$CI_VERBOSE" -eq 1 ]]; then
     echo "Downloading latest cloudinit to /usr/local/bin..."
