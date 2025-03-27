@@ -193,11 +193,11 @@ interactiveStepNetwork() {
     CI_CHOICE=${CI_CHOICE:-"Y"}
     CI_CHOICE="${CI_CHOICE^^}"
 
-    if [[ $CI_CHOICE -eq "Y" ]]
+    if [[ $CI_CHOICE -eq "Y" ]] then
         read -p "What network would you like to set your VM into? (Currently $CI_NETWORK) >" CI_CHOICE
         read -p "What is the CIDR of your VM? (Currently $CI_CIDR) >" CI_CHOICE
         read -p "What IP would you like to give your VM? (Currently $CI_IP_ADDRESS) >" CI_CHOICE
-    elif [[ $CI_CHOICE -eq "N" ]]
+    elif [[ $CI_CHOICE -eq "N" ]] then
         echo
     else
         echo "Please reply by Y or N"
