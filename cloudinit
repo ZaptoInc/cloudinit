@@ -191,15 +191,19 @@ interactiveStepDisk() {
 
 interactiveStepNetwork() {
     read -p "Do you want to add networking to the VM? ([Y]/N) >" CI_CHOICE
-
+    echo $CI_CHOICE
     CI_CHOICE=${CI_CHOICE:-"Y"}
     CI_CHOICE="${CI_CHOICE^^}"
+    echo $CI_CHOICE
 
-    if [[ $CI_CHOICE -eq "Y" ]] then
+    if [[ $CI_CHOICE == "Y" ]] then
         read -p "What network would you like to set your VM into? (Currently $CI_NETWORK) >" CI_CHOICE
+        CI_NETWORK=${CI_CHOICE:-$CI_NETWORK}
         read -p "What is the CIDR of your VM? (Currently $CI_CIDR) >" CI_CHOICE
+        CI_CIDR=${CI_CHOICE:-$CI_CIDR}
         read -p "What IP would you like to give your VM? (Currently $CI_IP_ADDRESS) >" CI_CHOICE
-    elif [[ $CI_CHOICE -eq "N" ]] then
+        CI_IP_ADDRESS=${CI_CHOICE:-$CI_IP_ADDRESS}
+    elif [[ $CI_CHOICE == "N" ]] then
         echo
     else
         echo "Please reply by Y or N"
@@ -225,6 +229,9 @@ interactiveMode() {
     echo "CI_RAM_MB: $CI_RAM_MB"
     echo "CI_DISK: $CI_DISK"
     echo "CI_CHOICE: $CI_CHOICE"
+    echo "CI_NETWORK: $CI_NETWORK"
+    echo "CI_CIDR: $CI_CIDR"
+    echo "CI_IP_ADDRESS: $CI_IP_ADDRESS"
     exit 0
 }
 
