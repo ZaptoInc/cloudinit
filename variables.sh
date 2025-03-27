@@ -6,6 +6,8 @@ CI_MAIN_DIR="$CI_INSTALL_DIR/cloudinit"
 export CI_MAIN_DIR
 export CI_SCRIPTS="$CI_MAIN_DIR/scripts"
 
+export CI_VM_NAME="unnamed-vm"
+
 export CI_CIDR=24
 export CI_GATEWAY="192.168.1.1"
 export CI_DNS="1.1.1.1 1.0.0.1"

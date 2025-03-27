@@ -12,7 +12,7 @@ usage() {
     echo "Usage: $0 --name <VM_name> --ip <ip_address> [--option]"
     echo "  --id            ID of the VM (Default: automatically choose the first available ID)"
     echo "  --cpu           CPU count (Default: $CI_CPU)"
-    echo "  --name          VM name (Required unless interactive)"
+    echo "  --name          VM name (Default: $CI_VM_NAME)"
     echo "  --ram           RAM size un MB (Default: $CI_RAM)"
     echo "  --disk          disk size (Default: $CI_DISK)"
     echo "  --cidr          CIDR of the network (Default: $CI_CIDR)"
@@ -94,7 +94,51 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-CI_SCRIPTS_VAR=("$CI_SCRIPTS"/*.sh)
+# Defaults to the next available id in Proxmox
+CI_VM_ID="${CI_VM_ID:-$(pvesh get /cluster/nextid)}"
+
+interactiveStep1() {
+    read -p "What ID would you like to give to the VM? (currently $CI_VM_ID) >" CI_CHOICE
+    CI_VM_ID=${CI_CHOICE:-$CI_VM_ID}
+}
+
+interactiveStep2() {
+    read -p "What name would you like to give to the VM? (Currently $CI_VM_NAME) >" CI_CHOICE
+    CI_VM_NAME=${CI_CHOICE:-$CI_VM_NAME}
+}
+
+interactiveStep3() {
+    echo "What OS would you like to use on the VM?"
+    listOS
+    echo "0) Cancel"
+    echo
+    read -p ">" CI_CHOICE
+    if [[ "$CI_CHOICE" == "0" ]]; then
+        echo "Cancelled."
+        exit 0
+    elif [[ "$CI_CHOICE" =~ ^[0-9]+$ ]] && (( CI_CHOICE >= 1 && CI_CHOICE <= ${#CI_SCRIPTS_VAR[@]} )); then
+        CI_OS_SCRIPT="${CI_SCRIPTS_VAR[$((CI_CHOICE - 1))]}"
+    else
+        echo "Invalid choice."
+        interactiveStep3
+    fi
+}
+
+interactiveMode() {
+    interactiveStep1
+    interactiveStep2
+    interactiveStep3
+    echo "CI_VM_ID: $CI_VM_ID"
+    echo "CI_VM_NAME: $CI_VM_NAME"
+    echo "CI_OS_SCRIPT: $CI_OS_SCRIPT"
+    exit 0
+}
+
+if [[ $INTERACTIVE -eq 1 ]]; then
+    interactiveMode
+else
+
+fi
 
 echo "What OS would you like to use?"
 echo
