@@ -136,6 +136,8 @@ freeRandomIP() {
     CI_RANDOM_IP=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" RANDOM)
     if [ -f "$CI_NETWORKS/$CI_NETWORK/$CI_RANDOM_IP" ]; then
         freeRandomIP $((CI_TRIED_IPS + 1))
+    else
+        echo $CI_RANDOM_IP
     fi
 }
 
