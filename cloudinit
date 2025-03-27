@@ -105,7 +105,7 @@ while [[ $# -gt 0 ]]; do
         --ram) CI_RAM="$2"; shift 2 ;;
         --disk) CI_DISK="$2"; shift 2 ;;
         --cidr) $CI_CIDR="$2"; shift 2 ;;
-        --ip) CI_IP_ADDRESS="$2/$CIDR"; shift 2 ;;
+        --ip) CI_IP_ADDRESS="$2"; shift 2 ;;
         --gateway) CI_GATEWAY="$2"; shift 2 ;;
         --dns) CI_DNS="$2"; shift 2 ;;
         --os) CI_OS="$2"; shift 2 ;;
@@ -124,9 +124,25 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+CI_NETWORK=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" NETWORK)
+freeRandomIP() {
+    CI_TRIED_IPS=$1
+    CI_TRIED_IPS="${CI_TRIED_IPS:-0}"
+    CI_USABLE_IPS=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" USABLE)
+    if [ "$CI_TRIED_IPS" -ge $CI_USABLE_IPS ]; then
+        echo "No free IP on this network... please check, maybe some cleanup is necessary"
+        exit 1
+    fi
+    CI_RANDOM_IP=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" RANDOM)
+    if [ -f "$CI_NETWORKS/$CI_NETWORK/$CI_RANDOM_IP" ]; then
+        freeRandomIP $((CI_TRIED_IPS + 1))
+    fi
+}
+
 # Defaults to the next available id in Proxmox
 CI_VM_ID="${CI_VM_ID:-$(pvesh get /cluster/nextid)}"
 
+CI_IP_ADDRESS="${CI_IP_ADDRESS:-$(freeRandomIP)}"
 interactiveStepID() {
     read -p "What ID would you like to give to the VM? (currently $CI_VM_ID) >" CI_CHOICE
     CI_VM_ID=${CI_CHOICE:-$CI_VM_ID}
@@ -178,8 +194,9 @@ interactiveStepNetwork() {
     CI_CHOICE="${CI_CHOICE^^}"
 
     if [[ $CI_CHOICE -eq "Y" ]]
-        read -p "What CIDR would you like to give your VM? (Currently $CI_CIDR) >" CI_CHOICE
-        read -p "What IP would you like to give your VM? (Currently ) >" CI_CHOICE
+        read -p "What network would you like to set your VM into? (Currently $CI_NETWORK) >" CI_CHOICE
+        read -p "What is the CIDR of your VM? (Currently $CI_CIDR) >" CI_CHOICE
+        read -p "What IP would you like to give your VM? (Currently $CI_IP_ADDRESS) >" CI_CHOICE
     elif [[ $CI_CHOICE -eq "N" ]]
         echo
     else
