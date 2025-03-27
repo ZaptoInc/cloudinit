@@ -4,8 +4,9 @@ export CI_INSTALL_DIR
 export CI_TEMPLATE_DIR="$CI_INSTALL_DIR/template/raw"
 CI_MAIN_DIR="$CI_INSTALL_DIR/cloudinit"
 export CI_MAIN_DIR
+export CI_NETWORKS="$CI_MAIN_DIR/networks"
 export CI_SCRIPTS="$CI_MAIN_DIR/scripts"
-export CI_VM_NETWORKS
+export CI_UTILS="$CI_MAIN_DIR/utils"
 
 export CI_VM_NAME="unnamed-vm"
 
