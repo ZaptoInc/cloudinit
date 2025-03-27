@@ -137,7 +137,9 @@ interactiveMode() {
 if [[ $INTERACTIVE -eq 1 ]]; then
     interactiveMode
 else
-
+    echo "TODO: args checking"
+    echo "use interactive mode for now."
+    exit 1
 fi
 
 echo "What OS would you like to use?"
