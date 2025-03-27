@@ -5,6 +5,7 @@ export CI_TEMPLATE_DIR="$CI_INSTALL_DIR/template/raw"
 CI_MAIN_DIR="$CI_INSTALL_DIR/cloudinit"
 export CI_MAIN_DIR
 export CI_SCRIPTS="$CI_MAIN_DIR/scripts"
+export CI_VM_NETWORKS
 
 export CI_VM_NAME="unnamed-vm"
 

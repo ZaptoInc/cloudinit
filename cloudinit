@@ -66,6 +66,36 @@ listOS() {
     done
 }
 
+convert_to_mb() {
+  input="$1"
+  value=""
+  unit=""
+
+  # Extraire la partie numérique et la partie unité (insensible à la casse)
+  if [[ "$input" =~ ^([0-9]+)([a-zA-Z]*)$ ]]; then
+    value="${BASH_REMATCH[1]}"
+    unit="${BASH_REMATCH[2]}"
+    unit="${unit^^}"  # Met en majuscules
+  else
+    echo "Format invalide: $input" >&2
+    return 1
+  fi
+
+  # Conversion selon l’unité
+  case "$unit" in
+    ""|"M"|"MB")
+      echo "$value"
+      ;;
+    "G"|"GB")
+      echo $((value * 1024))
+      ;;
+    *)
+      echo "Unité inconnue: $unit" >&2
+      return 1
+      ;;
+  esac
+}
+
 # Parsing des arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -97,17 +127,17 @@ done
 # Defaults to the next available id in Proxmox
 CI_VM_ID="${CI_VM_ID:-$(pvesh get /cluster/nextid)}"
 
-interactiveStep1() {
+interactiveStepID() {
     read -p "What ID would you like to give to the VM? (currently $CI_VM_ID) >" CI_CHOICE
     CI_VM_ID=${CI_CHOICE:-$CI_VM_ID}
 }
 
-interactiveStep2() {
+interactiveStepName() {
     read -p "What name would you like to give to the VM? (Currently $CI_VM_NAME) >" CI_CHOICE
     CI_VM_NAME=${CI_CHOICE:-$CI_VM_NAME}
 }
 
-interactiveStep3() {
+interactiveStepOS() {
     echo "What OS would you like to use on the VM?"
     listOS
     echo "0) Cancel"
@@ -118,23 +148,68 @@ interactiveStep3() {
         exit 0
     elif [[ "$CI_CHOICE" =~ ^[0-9]+$ ]] && (( CI_CHOICE >= 1 && CI_CHOICE <= ${#CI_SCRIPTS_VAR[@]} )); then
         CI_OS_SCRIPT="${CI_SCRIPTS_VAR[$((CI_CHOICE - 1))]}"
+        CI_OS_NAME=$(basename "$CI_OS_SCRIPT" .sh)
     else
         echo "Invalid choice."
-        interactiveStep3
+        interactiveStepOS
+    fi
+}
+
+interactiveStepCPU() {
+    read -p "How many CPU cores would you like to give to your VM? (Currently $CI_CPU) >" CI_CHOICE
+    CI_CPU=${CI_CHOICE:-$CI_CPU}
+}
+
+interactiveStepRAM() {
+    read -p "How much RAM would you like to give to your VM? (Currently $CI_RAM) >" CI_CHOICE
+    CI_RAM=${CI_CHOICE:-$CI_RAM}
+    CI_RAM_MB=$(convert_to_mb "$CI_RAM")
+}
+
+interactiveStepDisk() {
+    read -p "How much disk space would you like to give to your VM? (Currently $CI_DISK) >" CI_CHOICE
+    CI_DISK=${CI_CHOICE:-$CI_DISK}
+}
+
+interactiveStepNetwork() {
+    read -p "Do you want to add networking to the VM? ([Y]/N) >" CI_CHOICE
+
+    CI_CHOICE=${CI_CHOICE:-"Y"}
+    CI_CHOICE="${CI_CHOICE^^}"
+
+    if [[ $CI_CHOICE -eq "Y" ]]
+        read -p "What CIDR would you like to give your VM? (Currently $CI_CIDR) >" CI_CHOICE
+        read -p "What IP would you like to give your VM? (Currently ) >" CI_CHOICE
+    elif [[ $CI_CHOICE -eq "N" ]]
+        echo
+    else
+        echo "Please reply by Y or N"
+        interactiveStepNetwork
     fi
 }
 
 interactiveMode() {
-    interactiveStep1
-    interactiveStep2
-    interactiveStep3
+    interactiveStepID
+    interactiveStepName
+    interactiveStepOS
+    interactiveStepCPU
+    interactiveStepRAM
+    interactiveStepDisk
+    interactiveStepNetwork
+
     echo "CI_VM_ID: $CI_VM_ID"
     echo "CI_VM_NAME: $CI_VM_NAME"
+    echo "CI_OS_NAME: $CI_OS_NAME"
     echo "CI_OS_SCRIPT: $CI_OS_SCRIPT"
+    echo "CI_CPU: $CI_CPU"
+    echo "CI_RAM: $CI_RAM"
+    echo "CI_RAM_MB: $CI_RAM_MB"
+    echo "CI_DISK: $CI_DISK"
+    echo "CI_CHOICE: $CI_CHOICE"
     exit 0
 }
 
-if [[ $INTERACTIVE -eq 1 ]]; then
+if [[ $CI_INTERACTIVE -eq 1 ]]; then
     interactiveMode
 else
     echo "TODO: args checking"
