@@ -7,6 +7,7 @@ export CI_MAIN_DIR
 export CI_NETWORKS="$CI_MAIN_DIR/networks"
 export CI_SCRIPTS="$CI_MAIN_DIR/scripts"
 export CI_UTILS="$CI_MAIN_DIR/utils"
+export CI_SNIPPETS="$CI_MAIN_DIR/snippets"
 
 export CI_VM_NAME="unnamed-vm"
 
@@ -14,6 +15,7 @@ export CI_CIDR=24
 export CI_NETWORK="192.168.1.0"
 export CI_GATEWAY="192.168.1.1"
 export CI_DNS="1.1.1.1 1.0.0.1"
+export CI_NETWORK_BRIDGE="vmbr0"
 
 export CI_OS="debian12"
 
