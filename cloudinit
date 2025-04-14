@@ -220,6 +220,19 @@ interactiveMode() {
     interactiveStepDisk
     interactiveStepNetwork
 
+    export $CI_VM_ID
+    export $CI_VM_NAME
+    export $CI_OS_NAME
+    export $CI_OS_SCRIPT
+    export $CI_CPU
+    export $CI_RAM
+    export $CI_RAM_MB
+    export $CI_DISK
+    export $CI_CHOICE
+    export $CI_NETWORK
+    export $CI_CIDR
+    export $CI_IP_ADDRESS
+
     $CI_OS_SCRIPT
     exit 0
 }
