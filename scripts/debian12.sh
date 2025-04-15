@@ -41,7 +41,7 @@ echo "qm set ${CI_VM_ID} --serial0 socket --vga serial0"
 qm set ${CI_VM_ID} --serial0 socket --vga serial0
 
 # Creating Cloud Init config
-mkdir ${CI_SNIPPETS}
+mkdir -p ${CI_SNIPPETS}
 echo "cat <<EOF > ${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 cat <<EOF > "${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 #cloud-config
@@ -135,8 +135,8 @@ if [[ $START -eq 1 ]]; then
 fi
 
 CI_NETWORK=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" NETWORK)
-mkdir $CI_NETWORKS
-mkdir "$CI_NETWORKS/$CI_NETWORK"
+mkdir -p $CI_NETWORKS
+mkdir -p "$CI_NETWORKS/$CI_NETWORK"
 echo "$CI_VM_ID" > "$CI_NETWORKS/$CI_NETWORK/$CI_IP_ADDRESS"
 
 echo "END"
