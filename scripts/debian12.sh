@@ -18,7 +18,7 @@ CI_USER_PASSWORD_HASH=$(openssl passwd -6 "$CI_USER_PASSWORD")
 
 echo "Creating VM ${CI_VM_NAME} with ID ${CI_VM_ID}"
 # Creating VM
-qm create ${CI_VM_ID} --name "${CI_VM_NAME}" --memory ${CI_RAM_MB} --sockets 1 --cores ${CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}
+qm create ${CI_VM_ID} --name "${CI_VM_NAME}" --memory ${CI_RAM_MB} --sockets 1 --cores ${CI_CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}
 # Importing disk
 qm importdisk ${CI_VM_ID} "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" "$CI_STORAGE"
 # Configuring type of disk
