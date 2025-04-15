@@ -18,21 +18,30 @@ CI_USER_PASSWORD_HASH=$(openssl passwd -6 "$CI_USER_PASSWORD")
 
 echo "Creating VM ${CI_VM_NAME} with ID ${CI_VM_ID}"
 # Creating VM
+echo "qm create ${CI_VM_ID} --name ${CI_VM_NAME} --memory ${CI_RAM_MB} --sockets 1 --cores ${CI_CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}"
 qm create ${CI_VM_ID} --name "${CI_VM_NAME}" --memory ${CI_RAM_MB} --sockets 1 --cores ${CI_CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}
 # Importing disk
+echo "qm importdisk ${CI_VM_ID} $CI_TEMPLATE_DIR/$CI_IMAGE_NAME $CI_STORAGE"
 qm importdisk ${CI_VM_ID} "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" "$CI_STORAGE"
 # Configuring type of disk
+echo "qm set ${CI_VM_ID} --scsihw virtio-scsi-pci --scsi0 ${CI_STORAGE}:vm-${CI_VM_ID}-disk-0"
 qm set ${CI_VM_ID} --scsihw virtio-scsi-pci --scsi0 "${CI_STORAGE}:vm-${CI_VM_ID}-disk-0"
 # Rezising disk
+echo "qm resize ${CI_VM_ID} scsi0 ${CI_DISK}"
 qm resize ${CI_VM_ID} scsi0 ${CI_DISK}
 # Cloudinit disk
+echo "qm set ${CI_VM_ID} --ide2 $CI_STORAGE:cloudinit"
 qm set ${CI_VM_ID} --ide2 "$CI_STORAGE:cloudinit"
 # Networking
+echo "qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS},gw=${CI_GATEWAY}"
 qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS},gw=${CI_GATEWAY}
+echo "qm set ${CI_VM_ID} --nameserver ${CI_DNS}"
 qm set ${CI_VM_ID} --nameserver "${CI_DNS}"
+echo "qm set ${CI_VM_ID} --serial0 socket --vga serial0"
 qm set ${CI_VM_ID} --serial0 socket --vga serial0
 
 # Creating Cloud Init config
+echo "cat <<EOF > ${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 cat <<EOF > "${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 #cloud-config
 hostname: ${CI_VM_NAME}
@@ -105,10 +114,13 @@ runcmd:
 EOF
 
 # Applying Cloud Init config
+echo "qm set ${CI_VM_ID} --cicustom user=local:snippets/cloudinit-user-data-${CI_VM_ID}.yml"
 qm set ${CI_VM_ID} --cicustom "user=local:snippets/cloudinit-user-data-${CI_VM_ID}.yml"
+echo "qm cloudinit update ${CI_VM_ID}"
 qm cloudinit update ${CI_VM_ID}
 
 # Setting boot order
+echo "qm set ${CI_VM_ID} --boot order=scsi0 --bootdisk scsi0"
 qm set ${CI_VM_ID} --boot order=scsi0 --bootdisk scsi0
 
 # Setting start on boot
@@ -120,6 +132,11 @@ fi
 if [[ $START -eq 1 ]]; then
     qm start ${NEW_VM_ID}
 fi
+
+CI_NETWORK=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" NETWORK)
+mkdir $CI_NETWORKS
+mkdir ""$CI_NETWORKS/$CI_NETWORK"
+echo "$CI_VM_ID" > "$CI_NETWORKS/$CI_NETWORK/$CI_IP_ADDRESS"
 
 echo "END"
 
