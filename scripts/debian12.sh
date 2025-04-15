@@ -131,7 +131,7 @@ fi
 
 # Starting VM
 if [[ $CI_START -eq 1 ]]; then
-    qm start ${NEW_VM_ID}
+    qm start ${CI_VM_ID}
 fi
 
 CI_NETWORK=$($CI_UTILS/networking.sh "$CI_NETWORK/$CI_CIDR" NETWORK)
