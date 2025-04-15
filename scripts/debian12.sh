@@ -33,14 +33,15 @@ qm resize ${CI_VM_ID} scsi0 ${CI_DISK}
 echo "qm set ${CI_VM_ID} --ide2 $CI_STORAGE:cloudinit"
 qm set ${CI_VM_ID} --ide2 "$CI_STORAGE:cloudinit"
 # Networking
-echo "qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS},gw=${CI_GATEWAY}"
-qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS},gw=${CI_GATEWAY}
+echo "qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS}/${CI_CIDR},gw=${CI_GATEWAY}"
+qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS}/${CI_CIDR},gw=${CI_GATEWAY}
 echo "qm set ${CI_VM_ID} --nameserver ${CI_DNS}"
 qm set ${CI_VM_ID} --nameserver "${CI_DNS}"
 echo "qm set ${CI_VM_ID} --serial0 socket --vga serial0"
 qm set ${CI_VM_ID} --serial0 socket --vga serial0
 
 # Creating Cloud Init config
+mkdir ${CI_SNIPPETS}
 echo "cat <<EOF > ${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 cat <<EOF > "${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 #cloud-config
