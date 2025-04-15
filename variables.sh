@@ -16,6 +16,7 @@ export CI_NETWORK="192.168.1.0"
 export CI_GATEWAY="192.168.1.1"
 export CI_DNS="1.1.1.1 1.0.0.1"
 export CI_NETWORK_BRIDGE="vmbr0"
+export CI_DOMAIN_NAME="home"
 
 export CI_OS="debian12"
 
