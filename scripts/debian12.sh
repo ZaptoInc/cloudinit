@@ -130,7 +130,7 @@ if [[ $CI_ON_BOOT -eq 1 ]]; then
 fi
 
 # Starting VM
-if [[ $START -eq 1 ]]; then
+if [[ $CI_START -eq 1 ]]; then
     qm start ${NEW_VM_ID}
 fi
 
