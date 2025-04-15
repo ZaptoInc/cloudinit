@@ -18,37 +18,28 @@ CI_USER_PASSWORD_HASH=$(openssl passwd -6 "$CI_USER_PASSWORD")
 
 echo "Creating VM ${CI_VM_NAME} with ID ${CI_VM_ID}"
 # Creating VM
-echo "qm create ${CI_VM_ID} --name ${CI_VM_NAME} --memory ${CI_RAM_MB} --sockets 1 --cores ${CI_CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}"
 qm create ${CI_VM_ID} --name "${CI_VM_NAME}" --memory ${CI_RAM_MB} --sockets 1 --cores ${CI_CPU} --net0 virtio,bridge=${CI_NETWORK_BRIDGE}
 # Importing disk
-echo "qm importdisk ${CI_VM_ID} $CI_TEMPLATE_DIR/$CI_IMAGE_NAME $CI_STORAGE"
 qm importdisk ${CI_VM_ID} "$CI_TEMPLATE_DIR/$CI_IMAGE_NAME" "$CI_STORAGE"
 # Configuring type of disk
-echo "qm set ${CI_VM_ID} --scsihw virtio-scsi-pci --scsi0 ${CI_STORAGE}:vm-${CI_VM_ID}-disk-0"
 qm set ${CI_VM_ID} --scsihw virtio-scsi-pci --scsi0 "${CI_STORAGE}:vm-${CI_VM_ID}-disk-0"
 # Rezising disk
-echo "qm resize ${CI_VM_ID} scsi0 ${CI_DISK}"
 qm resize ${CI_VM_ID} scsi0 ${CI_DISK}
 # Cloudinit disk
-echo "qm set ${CI_VM_ID} --ide2 $CI_STORAGE:cloudinit"
 qm set ${CI_VM_ID} --ide2 "$CI_STORAGE:cloudinit"
 # Networking
-echo "qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS}/${CI_CIDR},gw=${CI_GATEWAY}"
 qm set ${CI_VM_ID} --ipconfig0 ip=${CI_IP_ADDRESS}/${CI_CIDR},gw=${CI_GATEWAY}
-echo "qm set ${CI_VM_ID} --nameserver ${CI_DNS}"
 qm set ${CI_VM_ID} --nameserver "${CI_DNS}"
-echo "qm set ${CI_VM_ID} --serial0 socket --vga serial0"
 qm set ${CI_VM_ID} --serial0 socket --vga serial0
 
 # Creating Cloud Init config
 mkdir -p ${CI_SNIPPETS}
-echo "cat <<EOF > ${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 cat <<EOF > "${CI_SNIPPETS}/cloudinit-user-data-${CI_VM_ID}.yml"
 #cloud-config
 hostname: ${CI_VM_NAME}
 users:
   - name: $CI_USER_NAME
-    primary_group: $CI_USER_NAME
+    primary_group: users
     sudo: ALL=(ALL) NOPASSWD:ALL
     groups: sudo
     shell: /bin/bash
